@@ -1,0 +1,52 @@
+%定义参数
+% r1,r2为TT分解的秩约束
+% delta为增广项罚参数
+% r1=
+% r2=
+% delta=
+G2=tensor(rand(3,2));
+G1=tensor(rand(2,3,2));
+G3=tensor(rand(2,3));
+[Hx,Gx]=QRzheng(G1,G2,G3)
+
+function [Hx,Gx]=QRzheng(G1,G2,G3)
+    %a为核的各维度信息，b为核的维数
+    a1=size(G1);
+    a2=size(G2);
+    a3=size(G3);
+    b1=size(a1);
+    b2=size(a2);
+    b3=size(a3);
+    if b1(2)==2
+        if b2(2)==2 %g3,g1,g2
+            G31=reshape(G3,[a3(1),a3(2)*a3(3)]);
+            G11=double(G2)*double(G31);
+            H1=reshape(G11,[a2(1)*a3(2),a3(3)]);
+            [H2,R]=qr(H1,0);
+            Hx=tensor(H2);
+            Gx=R*double(G1);
+            Gx=tensor(Gx);
+        elseif b2(2)==3 %g1,g2,g3
+            G21=reshape(G2,[a2(1)*a2(2),a2(3)]);
+            G11=double(G21)*double(G3);
+            H1=reshape(G11,[a2(1),a2(2)*a3(2)]);
+            [H2,R]=qr(H1',0);
+            Hx=tensor(H2);
+            Gx=R*double(G1)';
+            Gx=tensor(Gx');
+        end
+    elseif b1(2)==3%g2,g1,g3
+        r1=a1(1); r2=a1(3);n1=a2(1);n2=a1(2);n3=a3(2);
+        H1=kron(double(G2),double(G3)');
+        G11=reshape(G1,[r1*r2,n2]);
+        [H2,R]=qr(H1,0);
+        Hx=tensor(H2);
+        Gx=R*double(G11);
+        Gx=tensor(Gx);
+    end
+end
+        
+
+
+
+
